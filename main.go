@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -30,7 +31,12 @@ func titleIsProfileName(webDriver selenium.WebDriver) string {
 }
 
 func extractUsedParameter(href string) string {
-	scratch := strings.Split(href, "&")
+	u, err := url.Parse(href)
+	if err != nil {
+		panic(err)
+	}
+
+	scratch := strings.Split(u.RawQuery, "&")
 	var imageStr string
 	for _, link := range scratch {
 		if strings.HasPrefix(link, "img=") {
@@ -61,7 +67,7 @@ func main() {
 	}
 	defer webDriver.Quit()
 
-	webDriver.Get("http://nlegs.com/girls/2020/02/14/13611.html")
+	webDriver.Get("http://nlegs.com/girls/2020/02/19/13664.html")
 
 	profile := titleIsProfileName(webDriver)
 	elements, err := webDriver.FindElements(selenium.ByCSSSelector, ".col-md-12.col-lg-12.panel.panel-default .panel-body a")
