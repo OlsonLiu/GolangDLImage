@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -30,21 +29,12 @@ func titleIsProfileName(webDriver selenium.WebDriver) string {
 	return profile
 }
 
-func extractUsedParameter(href string) string {
-	u, err := url.Parse(href)
-	if err != nil {
-		panic(err)
-	}
+func extractUsedParameter(urlProperty string) string {
+	imageStr := urlProperty[strings.LastIndex(urlProperty, "url(\"")+5 : strings.LastIndex(urlProperty, "\")")]
+	thumbNailParam := imageStr[strings.LastIndex(imageStr, "/")+1:]
+	jpgParam := strings.Trim(thumbNailParam, "T")
 
-	scratch := strings.Split(u.RawQuery, "&")
-	var imageStr string
-	for _, link := range scratch {
-		if strings.HasPrefix(link, "img=") {
-			imageStr = link[strings.LastIndex(link, "img=")+len("img=") : len(link)]
-			return imageStr
-		}
-	}
-	return ""
+	return strings.Replace(imageStr, thumbNailParam, jpgParam, 1)
 }
 
 func main() {
@@ -67,23 +57,22 @@ func main() {
 	}
 	defer webDriver.Quit()
 
-	webDriver.Get("http://nlegs.com/girls/2020/02/19/13664.html")
+	webDriver.Get("http://www.nlegs.com/girls/2020/05/25/14880.html")
 
 	profile := titleIsProfileName(webDriver)
-	elements, err := webDriver.FindElements(selenium.ByCSSSelector, ".col-md-12.col-lg-12.panel.panel-default .panel-body a")
+	elements, err := webDriver.FindElements(selenium.ByCSSSelector, ".col-md-12.col-lg-12.panel.panel-default .panel-body a div")
 	if err != nil {
 		panic(err)
 	}
 
 	for i, elt := range elements {
-		href, err := elt.GetAttribute("href")
+		urlProperty, err := elt.CSSProperty("background-image")
 		if err != nil {
 			err.Error()
 		}
-		imgID := extractUsedParameter(href)
-		imgURL := "http://nlegs.com/images/" + imgID + ".jpg"
+		imgURL := extractUsedParameter(urlProperty)
+		// imgURL := "http://www.nlegs.com/images/" + imgID + ".jpg"
 
-		fmt.Println(imgURL)
 		client := &http.Client{}
 		request, err := http.NewRequest("GET", imgURL, nil)
 		if err != nil {
@@ -98,6 +87,9 @@ func main() {
 		defer response.Body.Close()
 
 		shell := strconv.Itoa(i+1) + ".jpg"
+
+		fmt.Println("The " + strconv.Itoa(i+1) + "th , " + imgURL)
+
 		s := []string{profile, shell}
 		imgPath := strings.Join(s, "\\")
 		file, err := os.Create(imgPath)
