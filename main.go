@@ -15,7 +15,7 @@ import (
 func titleIsProfileName(webDriver selenium.WebDriver) string {
 	title, err := webDriver.Title()
 	if err != nil {
-		panic(err)
+		fmt.Println(title)
 	}
 
 	title = title[0:strings.LastIndex(title, " |")]
@@ -31,10 +31,8 @@ func titleIsProfileName(webDriver selenium.WebDriver) string {
 
 func extractUsedParameter(urlProperty string) string {
 	imageStr := urlProperty[strings.LastIndex(urlProperty, "url(\"")+5 : strings.LastIndex(urlProperty, "\")")]
-	thumbNailParam := imageStr[strings.LastIndex(imageStr, "/")+1:]
-	jpgParam := strings.Trim(thumbNailParam, "T")
-
-	return strings.Replace(imageStr, thumbNailParam, jpgParam, 1)
+	imageStr = strings.Replace(imageStr, "thumb", "image", 1)
+	return imageStr
 }
 
 func main() {
@@ -71,8 +69,7 @@ func main() {
 			err.Error()
 		}
 		imgURL := extractUsedParameter(urlProperty)
-		// imgURL := "http://www.nlegs.com/images/" + imgID + ".jpg"
-
+		fmt.Println(imgURL)
 		client := &http.Client{}
 		request, err := http.NewRequest("GET", imgURL, nil)
 		if err != nil {
