@@ -55,7 +55,7 @@ func downloadImage() {
 	}
 	defer webDriver.Quit()
 
-	webDriver.Get("http://www.nlegs.com/girls/2020/08/13/15922.html")
+	webDriver.Get(PageLink)
 
 	profile := titleIsProfileName(webDriver)
 	elements, err := webDriver.FindElements(selenium.ByCSSSelector, ".col-md-12.col-lg-12.panel.panel-default .panel-body a div")
@@ -109,12 +109,12 @@ func main() {
 
 /*
 func testSingleImage() {
-	request, err := http.NewRequest("GET", "http://www.nlegs.com/images/2020/08/13/15928/I126q1.jpg", nil)
+	request, err := http.NewRequest("GET", PageLink, nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
-	request.Header.Set("Referer", "http://www.nlegs.com/images/2020/08/13/15928/I126q1.jpg")
+	request.Header.Set("Referer", "")
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
