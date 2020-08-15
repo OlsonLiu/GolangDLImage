@@ -31,11 +31,11 @@ func titleIsProfileName(webDriver selenium.WebDriver) string {
 
 func extractUsedParameter(urlProperty string) string {
 	imageStr := urlProperty[strings.LastIndex(urlProperty, "url(\"")+5 : strings.LastIndex(urlProperty, "\")")]
-	imageStr = strings.Replace(imageStr, "thumb", "image", 1)
+	imageStr = strings.Replace(imageStr, "TI", "I", 1)
 	return imageStr
 }
 
-func main() {
+func downloadImage() {
 	opts := []selenium.ServiceOption{
 		// Enable fake XWindow session.
 		// selenium.StartFrameBuffer(),
@@ -55,11 +55,12 @@ func main() {
 	}
 	defer webDriver.Quit()
 
-	webDriver.Get("http://www.nlegs.com/girls/2020/05/25/14880.html")
+	webDriver.Get("http://www.nlegs.com/girls/2020/08/13/15922.html")
 
 	profile := titleIsProfileName(webDriver)
 	elements, err := webDriver.FindElements(selenium.ByCSSSelector, ".col-md-12.col-lg-12.panel.panel-default .panel-body a div")
 	if err != nil {
+
 		panic(err)
 	}
 
@@ -69,7 +70,6 @@ func main() {
 			err.Error()
 		}
 		imgURL := extractUsedParameter(urlProperty)
-		fmt.Println(imgURL)
 		client := &http.Client{}
 		request, err := http.NewRequest("GET", imgURL, nil)
 		if err != nil {
@@ -102,3 +102,35 @@ func main() {
 	}
 	fmt.Println("Success!")
 }
+
+func main() {
+	downloadImage()
+}
+
+/*
+func testSingleImage() {
+	request, err := http.NewRequest("GET", "http://www.nlegs.com/images/2020/08/13/15928/I126q1.jpg", nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
+	request.Header.Set("Referer", "http://www.nlegs.com/images/2020/08/13/15928/I126q1.jpg")
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer response.Body.Close()
+
+	file, err := os.Create("E:\\test.jpg")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+*/
